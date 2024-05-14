@@ -1,20 +1,27 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# Infrastructure as code
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+A way of codifying the deployments you make in cloud infrastructure to make administering them more manageable.  The idea is to keep your infrastructure in a certain known state, which you commit to git.  When you want to change the state (because you have a new requirement), just like coding, you make the change in infrastructure code, and then you commit the new state into git.  That way, everyone should always know what infrastructure has actually be created, and what state it is in.  Of course this state does not take account of:
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+- data in a database 
+- application versions deployed onto any web app.
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+So, for these exercises, we are going to use Bicep (which is a Microsoft native language for describing infrastructure state) to create the infrastructure.  you can find example of all kinds of different types of Azure infrastructure bicep files here: https://github.com/Azure/azure-quickstart-templates/tree/master/quickstarts
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+
+There are many videos on Youtube that can give you a crash course in Bicep.  Here's one or two
+
+
+https://www.youtube.com/watch?v=VDCAJIGqHZU
+https://www.youtube.com/watch?v=MP60ND7Upn4&list=PLlrxD0HtieHjzqIRjPoERUGj49rve3rCM
+
+
+Ignore everything you hear about ARM templates.  These are older and more complex technologies which you don't need to know if you know how to use Bicep.
+
+# Instructions for getting started and deploying infrastructure
+
+- make sure Powershell is installed 
+- make sure azure-cli is installed
+- install Bicep
+- login to Azure
+- change to the Sandbox subscription
+- run the powershell script: (./create.ps1 in a Powershell terminal)
