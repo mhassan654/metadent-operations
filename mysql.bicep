@@ -39,7 +39,7 @@ param serverEdition string = 'Burstable'
 ])
 param version string = '5.7'
 
-param availabilityZone string = '1'
+// param availabilityZone string = '0'
 
 @description('High availability mode for a server: Disabled, SameZone, or ZoneRedundant.')
 @allowed([
@@ -84,7 +84,6 @@ resource server 'Microsoft.DBforMySQL/flexibleServers@2021-12-01-preview' = {
     version: version
     administratorLogin: administratorLogin
     administratorLoginPassword: administratorLoginPassword
-    availabilityZone: availabilityZone
     highAvailability: {
       mode: haEnabled
       standbyAvailabilityZone: standbyAvailabilityZone

@@ -19,9 +19,14 @@ Ignore everything you hear about ARM templates.  These are older and more comple
 
 # Instructions for getting started and deploying infrastructure
 
-- make sure Powershell is installed 
-- make sure azure-cli is installed
-- install Bicep
-- login to Azure
-- change to the Sandbox subscription
-- run the powershell script: (./create.ps1 in a Powershell terminal)
+- make sure Powershell is installed (https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.4)
+- make sure azure-cli is installed (https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/install)
+- install Bicep (it may have been installed by the azure-cli.  Check by running `az bicep version`)
+- If you are using VS Code, install the bicep extension. If you open this repo and open one of the bicep files, you will be prompted to install the extension anyway.
+- login to Azure `az login` in a terminal
+- change to the Sandbox subscription `az account set -s 'Sandbox'`
+- amend the bicep files, and then run the powershell script: (./create.ps1 in a Powershell terminal) in a terminal. Make sure you are in the right directory
+
+You can of course use this example to create private versions of the same infrastructure that is connected to a VNet.  There are a few examples online.  For example on the mysql side, you can see this here:
+
+https://learn.microsoft.com/en-us/azure/mysql/flexible-server/quickstart-create-bicep?tabs=azure-cli 
