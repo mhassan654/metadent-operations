@@ -17,7 +17,7 @@ https://www.youtube.com/watch?v=MP60ND7Upn4&list=PLlrxD0HtieHjzqIRjPoERUGj49rve3
 
 Ignore everything you hear about ARM templates.  These are older and more complex technologies which you don't need to know if you know how to use Bicep.
 
-# Instructions for getting started and deploying infrastructure
+# Getting started
 
 - make sure Powershell is installed (https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.4)
 - make sure azure-cli is installed (https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/install)
@@ -30,3 +30,10 @@ Ignore everything you hear about ARM templates.  These are older and more comple
 You can of course use this example to create private versions of the same infrastructure that is connected to a VNet.  There are a few examples online.  For example on the mysql side, you can see this here:
 
 https://learn.microsoft.com/en-us/azure/mysql/flexible-server/quickstart-create-bicep?tabs=azure-cli 
+
+# Folders
+
+Folders have been created to help structure the code for the infrastructure as follows
+- environments - this is to be used for code that will be created for live infrastructure (for the African clients or development team where required).  There's a readme file in this folder, which specifies what the folders in the environments folder are used for.
+- samples - to be used in learning examples or snippets of code that help with learning. Please keep this area tidy.  Everything should be put into its separate folder so that the area is well organized.
+- pipelines.  In future, we'll need pipelines to help with orchestrating the creation of infrastructure.  This is where the pipelines will be stored.
