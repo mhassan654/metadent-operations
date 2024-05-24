@@ -4,7 +4,7 @@ param sku string = 'S1'
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
-var appServicePlanName = 'web-lin-dev-01'
+var appServicePlanName = 'ASP-metadentdev-s1'
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
   name: appServicePlanName
@@ -17,3 +17,5 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
     reserved: true
   }
 }
+
+output appServicePlanId string = appServicePlan.id
