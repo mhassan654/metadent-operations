@@ -1,16 +1,16 @@
-@description('uriel-be-prd-01 and web-lin-prd-01')
+@description('uriel-be-dev-01')
 @minLength(2)
-param webAppNameBe string = 'uriel-be-prd-01'
+param webAppNameBe string = 'uriel-be-dev-01'
 
-@description('uriel-be-prd-01 and uriel-fe-prd-01 runtime stacks')
-param linuxFxVersion string = 'php|8.1'
+@description('uriel-be-dev-01 and uriel-fe-dev-01 runtime stacks')
+param linuxFxVersion string = 'php|8.2'
 
-@description('uriel-be-prd-01 rsource location')
+@description('uriel-be-dev-01 rsource location')
 param location string = resourceGroup().location
 
 var webAppPortalNameBe = '${webAppNameBe}'
 
-module appServicePlanModule '../../../_shared_dev/app_service_plans/sp.bicep'={
+module appServicePlanModule './appserviceplan.bicep'={
   name: 'appServicePlanModule'
 }
 

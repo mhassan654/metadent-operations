@@ -5,7 +5,7 @@ param resourceNamePrefix string = 'uriel-sql-dev-01'
 param location string = resourceGroup().location
 
 @description('Provide the administrator login username for the flexible server.')
-param administratorLogin string = 'mysqladmin'
+param administratorLogin string = 'uriel-dev-01'
 
 @description('Provide the administrator login password for the flexible server.')
 @secure()

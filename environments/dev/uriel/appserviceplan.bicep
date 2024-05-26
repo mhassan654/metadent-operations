@@ -1,7 +1,7 @@
 @description('P0V3 app service plan attached to Uriel')
 param sku string = 'P0v3'
 
-@description('uriel-be-prd-01 rsource location')
+@description('uriel-be-dev-01 rsource location')
 param location string = resourceGroup().location
 
 var appServicePlanName = 'asp-metadent-dev'

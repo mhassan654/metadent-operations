@@ -1,6 +1,6 @@
 param location string = resourceGroup().location
 
-var virtualNetworkName = 'uriel-vnet-prd-01'
+var virtualNetworkName = 'metadent-afr-dev-01'
 var subnet1Name = 'DEV'
 var subnet2Name = 'SQL'
 

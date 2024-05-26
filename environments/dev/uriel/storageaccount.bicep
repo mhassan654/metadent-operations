@@ -1,7 +1,7 @@
 @description('uriel-be-prd-01 rsource location')
 param location string = resourceGroup().location
 
-var storageAccountName = 'stametadentdev01'
+var storageAccountName = 'urielprd01'
 
 // storage account resource
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-04-01'={
