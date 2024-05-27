@@ -1,7 +1,7 @@
 @description('Base name of the resource such as web app name and app service plan ')
 @minLength(2)
-param webAppName string = 'metadent-dev-fe-01'
-param webAppName2 string = 'metadent-dev-be-01'
+param webAppNameFrontend string = 'metadent-afr-dev-fe-01'
+param webAppNameBackend string = 'metadent-afr-dev-be-01'
 
 @description('The Runtime stack of current web app')
 param linuxFxVersionFe string = 'NODE|20-lts'
@@ -10,15 +10,21 @@ param linuxFxVersionBe string = 'php|8.2'
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
-var webAppPortalName = '${webAppName}'
-var webAppPortalName2 = '${webAppName2}'
+var appServicePlanResourceGroupName = 'web-afr-dev-rg'
+var vnetResourceGroupName = 'network-afr-dev-rg'
 
-module appServicePlanModule '../_shared_dev/app_service_plans/asp.bicep' = {
+module appServicePlanModule '../../_shared_dev/app_service_plans/asp.bicep' = {
+  scope: resourceGroup(appServicePlanResourceGroupName)
   name: 'appServicePlanModule'
 }
 
+module vnetModule '../../_shared_dev/virtual_networks/vnets.bicep' = {
+  scope: resourceGroup(vnetResourceGroupName)
+  name: 'vnetModule'
+}
+
 resource webAppPortalFe 'Microsoft.Web/sites@2022-03-01' = {
-  name: webAppPortalName
+  name: webAppNameFrontend
   location: location
   kind: 'app'
   properties: {
@@ -35,16 +41,18 @@ resource webAppPortalFe 'Microsoft.Web/sites@2022-03-01' = {
 }
 
 resource webAppPortalBe 'Microsoft.Web/sites@2022-03-01' = {
-  name: webAppPortalName2
+  name: webAppNameBackend
   location: location
   kind: 'app'
   properties: {
     serverFarmId: appServicePlanModule.outputs.appServicePlanId
+    virtualNetworkSubnetId: vnetModule.outputs.subnetWebResourceId    
     siteConfig: {
       linuxFxVersion: linuxFxVersionBe
       ftpsState: 'FtpsOnly'
     }
     httpsOnly: true
+    vnetRouteAllEnabled: true    
   }
   identity: {
     type: 'SystemAssigned'

@@ -1,5 +1,8 @@
 @description('Provide a prefix for creating resource names.')
-param resourceNamePrefix string = 'metadent-sql-dev-01'
+param serverName string = 'metadent-sql-afr-dev-01'
+param dnsName string = 'metadent-sqldns-dev-01'
+param mysqlServerHostName string = serverName
+
 
 @description('Provide the location for all the resources.')
 param location string = resourceGroup().location
@@ -9,21 +12,8 @@ param administratorLogin string = 'mysqladmin'
 
 @description('Provide the administrator login password for the flexible server.')
 @secure()
-param administratorLoginPassword string = 'Metasqluser!'
+param administratorLoginPassword string = newGuid()
 
-@description('Provide an array of firewall rules to apply to the flexible server.')
-param firewallRules array = [
-  {
-    name: 'rule1'
-    startIPAddress: '192.168.0.1'
-    endIPAddress: '192.168.0.255'
-  }
-  {
-    name: 'rule2'
-    startIPAddress: '192.168.1.1'
-    endIPAddress: '192.168.1.255'
-  }
-]
 
 @description('The tier of the particular SKU. High availability mode is available only in the GeneralPurpose and MemoryOptimized SKUs.')
 @allowed([
@@ -60,6 +50,12 @@ param storageIops int = 360
 ])
 param storageAutogrow string = 'Enabled'
 
+var vnetResourceGroupName = 'network-afr-dev-rg'
+module vnetModule '../../_shared_dev/virtual_networks/vnets.bicep' = {
+  scope: resourceGroup(vnetResourceGroupName)
+  name: 'vnetModule'
+}
+
 @description('The name of the SKU, such as Standard_D32ds_v4.')
 param skuName string = 'Standard_B1s'
 
@@ -70,10 +66,67 @@ param backupRetentionDays int = 7
 ])
 param geoRedundantBackup string = 'Disabled'
 
-param serverName string = '${resourceNamePrefix}'
-param databaseName string = 'metadent'
+// MySQL private endpoint
+resource privateMySQLEndpoint 'Microsoft.Network/privateEndpoints@2022-09-01' = {
+  name: dnsName
+  location: location
+  properties: {
+    subnet: vnetModule.outputs.subnetSQL
+    customNetworkInterfaceName: 'nic-${dnsName}'
+    privateLinkServiceConnections: [
+      {
+        name: 'pl-${dnsName}'
+        properties: {
+          privateLinkServiceId: mySqlserver.id
+          groupIds: [
+            'mysqlServer'
+          ]
+          privateLinkServiceConnectionState: {
+            status: 'Approved'
+            description: 'Auto-Approved'
+            actionsRequired: 'None'
+          }
+        }
+      }
+    ]
+  }
+}
 
-resource server 'Microsoft.DBforMySQL/flexibleServers@2021-12-01-preview' = {
+resource privateMySQLDNSZone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
+  name: mysqlServerHostName
+  location: 'global'
+}
+
+// MySQL private dns zone virtual network link
+resource privateMySQLDNSZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+  name: 'vnl-mysql-${dnsName}'
+  location: 'global'
+  parent: privateMySQLDNSZone
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: vnetModule.outputs.vnetResourceId
+    }
+  }
+}
+
+// MySQL private dns zone group
+resource privateMySQLDNSZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2022-11-01' = {
+  name: 'default'
+  parent: privateMySQLEndpoint
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: mysqlServerHostName
+        properties: {
+          privateDnsZoneId: privateMySQLDNSZone.id
+        }
+      }
+    ]
+  }
+}
+
+resource mySqlserver 'Microsoft.DBforMySQL/flexibleServers@2021-12-01-preview' = {
   location: location
   name: serverName
   sku: {
@@ -93,6 +146,10 @@ resource server 'Microsoft.DBforMySQL/flexibleServers@2021-12-01-preview' = {
       iops: storageIops
       autoGrow: storageAutogrow
     }
+    network: {
+      delegatedSubnetResourceId: vnetModule.outputs.subnetSqlResourceId
+      privateDnsZoneResourceId: privateMySQLDNSZone.id   
+    }
     backup: {
       backupRetentionDays: backupRetentionDays
       geoRedundantBackup: geoRedundantBackup
@@ -100,21 +157,4 @@ resource server 'Microsoft.DBforMySQL/flexibleServers@2021-12-01-preview' = {
   }
 }
 
-@batchSize(1)
-resource firewallRule 'Microsoft.DBforMySQL/flexibleServers/firewallRules@2021-12-01-preview' = [for rule in firewallRules: {
-  parent: server
-  name: rule.name
-  properties: {
-    startIpAddress: rule.startIPAddress
-    endIpAddress: rule.endIPAddress
-  }
-}]
-
-resource database 'Microsoft.DBforMySQL/flexibleServers/databases@2021-12-01-preview' = {
-  parent: server
-  name: databaseName
-  properties: {
-    charset: 'utf8'
-    collation: 'utf8_general_ci'
-  }
-}
+output mysqlserver object = mySqlserver
