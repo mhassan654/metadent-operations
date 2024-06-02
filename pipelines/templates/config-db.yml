@@ -1,0 +1,75 @@
+parameters:
+  subscription: ''
+  subscriptionId: ''
+  dbKeyvaultConfigs: []
+jobs:
+- ${{ each dbKeyvaultConfig in parameters.dbKeyvaultConfigs }}:
+  - ${{ each database in dbKeyvaultConfig.dbKeyvaults }}:
+    - job: configDatabase${{replace( database ,'-','_')}}
+      displayName: config databases for (${{database}} in  ${{parameters.environment}}) 
+      timeoutInMinutes: 10
+      pool: 
+        name: $(adoPool)
+      variables:
+        subscriptionId: ${{parameters.subscriptionId}}
+      steps:
+      - checkout: self
+      - task: AzureKeyVault@2
+        displayName: Get sql admin secrets
+        inputs:
+          azureSubscription: ${{parameters.subscription}}
+          KeyVaultName: ${{dbKeyvaultConfig.dbAdminKeyvault}}
+          SecretsFilter: 'sqlAdminUser,sqlAdminPwd'
+
+      - task: AzureKeyVault@2
+        displayName: Get secrets
+        inputs:
+          azureSubscription: ${{parameters.subscription}}
+          KeyVaultName: ${{database}}
+
+      - task: MysqlDeploymentOnMachineGroup@1
+        displayName: Create deployment user
+        inputs:
+          TaskNameSelector: InlineSqlTask
+          SqlInline: CREATE USER IF NOT EXISTS '$(sqlDeployUser)'@'%' IDENTIFIED BY '$(sqlDeployPwd)';
+          ServerName: $(sqlServerName)
+          DatabaseName: $(sqlDatabaseName)
+          SqlUsername: $(sqlAdminUser)
+          SqlPassword: $(sqlAdminPwd)
+
+      - task: MysqlDeploymentOnMachineGroup@1
+        displayName: Deployment user permissions
+        inputs:
+          TaskNameSelector: InlineSqlTask
+          SqlInline: | 
+            GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, 
+              INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, 
+              CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, 
+              TRIGGER ON *.* TO `$(sqlDeployUser)`@`%` WITH GRANT OPTION;
+          ServerName: $(sqlServerName)
+          DatabaseName: $(sqlDatabaseName)
+          SqlUsername: $(sqlAdminUser)
+          SqlPassword: $(sqlAdminPwd)
+        
+      - task: MysqlDeploymentOnMachineGroup@1
+        displayName: Create application user
+        inputs:
+          TaskNameSelector: InlineSqlTask
+          SqlInline: |
+            CREATE USER IF NOT EXISTS '$(sqlAppUser)'@'%' IDENTIFIED BY '$(sqlAppPwd)';
+            
+          ServerName: $(sqlServerName)
+          DatabaseName: $(sqlDatabaseName)
+          SqlUsername: $(sqlAdminUser)
+          SqlPassword: $(sqlAdminPwd)
+
+      - task: MysqlDeploymentOnMachineGroup@1
+        displayName: App user permissions
+        inputs:
+          TaskNameSelector: InlineSqlTask
+          SqlInline: | 
+            GRANT SELECT, INSERT, UPDATE, DELETE ON $(sqlDatabaseName).* TO `$(sqlAppUser)`@`%`;
+          ServerName: $(sqlServerName)
+          DatabaseName: $(sqlDatabaseName)
+          SqlUsername: $(sqlAdminUser)
+          SqlPassword: $(sqlAdminPwd)

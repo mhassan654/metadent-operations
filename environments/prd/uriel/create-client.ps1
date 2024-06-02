@@ -6,25 +6,28 @@ param(
 
 # Set the subscription
 az account set --subscription "9f3afebc-aa2c-42fa-97a3-7c9435c6721c"
-$env= "dev"
-$resourceGroupName = "metadent-afr-$env-rg"
+$env= "prd"
+$resourceGroupName = "uriel-$env-rg"
 $location = "WestEurope"
 $dnsZoneFrontend="$env.metadent.cloud"
 $dnsZoneBackend="$env.api.metadent.cloud"
 $appServicePlanName = "web-afr-$env-01"
 $mysqlServerResourceGroupName = "sql-afr-$env-rg"
 $mysqlServerName = "md-sql-afr-$env-01"
-$webAppNameFrontend = "metadent-afr-fe-$env-01"
-$webAppNameBackend = "metadent-afr-be-$env-01"
+$webAppNameFrontend = "uriel-fe-$env-01"
+$webAppNameBackend = "uriel-be-$env-01"
 $appServicePlanResourceGroupName = "web-afr-$env-rg"
 $vnetResourceGroupName = "network-afr-$env-rg"
-$vnetName = "metadent-afr-dev-01"
+$vnetName = "metadent-afr-$env-01"
 $appServicePlanName = "web-afr-$env-01"
-$keyVaultNameFe = "metadent-afr-fe-$env-01"
-$keyVaultNameBe = "metadent-afr-be-$env-01"
-$keyVaultNameEmails = "md-emails-$env-01"
-$sqlDatabaseName = "metadentafr$($env)01"
-$sqlDatabaseNameEmails = "metadentafremails$($env)01"
+$keyVaultNameFe = "uriel-fe-$env-01"
+$keyVaultNameBe = "uriel-be-$env-01"
+$keyVaultNameEmails = "uriel-emails-$env-01"
+$sqlServerName = "$mysqlServerName.mysql.database.azure.com"
+$sqlServerResourceGroup = $mysqlServerResourceGroupName
+$sqlDatabaseName = "uriel$($env)01"
+$sqlDatabaseNameEmails = "urielemails$($env)01"
+
 
 # # Create the resource groups
 az deployment sub create --name subscriptionDeployment --location $location `
@@ -34,18 +37,15 @@ az deployment sub create --name subscriptionDeployment --location $location `
 # # Deploy the resources
 
 # Check if the secret exists
-
 $secretExists=$(az keyvault secret show --name sqlAppPwd --vault-name $keyVaultNameBe --query id -o tsv 2>$null)
 
 # If the secret does not exist, deploy the Bicep file
-$sqlServerName = "$mysqlServerName.mysql.database.azure.com"
-$sqlServerResourceGroup = $mysqlServerResourceGroupName
-
 if ([string]::IsNullOrEmpty($secretExists)) {
 
     # # Deploy key vaults
     $sqlAppUser = $sqlDatabaseName
     $sqlDeployUser = "deploy$($sqlDatabaseName)"
+    
     [string] $sqlAppPwd = [guid]::NewGuid().ToString();
     [string] $sqlDeployPwd = [guid]::NewGuid().ToString();
 
@@ -65,7 +65,6 @@ if ([string]::IsNullOrEmpty($secretExists)) {
 $secretExistsEmails=$(az keyvault secret show --name sqlAppPwd --vault-name $keyVaultNameEmails --query id -o tsv 2>$null)
 
 # If the secret does not exist, deploy the Bicep file
-
 if ([string]::IsNullOrEmpty($secretExistsEmails)) {
 
     # # Deploy key vaults

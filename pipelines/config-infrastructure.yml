@@ -1,0 +1,63 @@
+name: $(Year:yyyy).$(Month).$(DayOfMonth)$(Rev:.r)
+resources:
+  - repo: self
+trigger:
+  batch: true
+  branches:
+    include:
+      - main
+      - feature/*
+      - bugfix/*
+      - releases/*
+
+variables:
+  - template: templates/config.yml
+stages:
+  - stage: BuildNumber
+    dependsOn: []
+    displayName: Build
+    jobs:
+      - job: ChangeBranchName
+        displayName: Change branch name
+        pool:
+          name: $(adoPool)
+        steps:
+          - powershell: |
+              $BuildNumber="$(Build.BuildNumber)";
+              $Branch = "$(Build.SourceBranchName)";
+              $Configuration = "$(BuildConfiguration)";
+
+                If (-Not ($Branch  -eq 'main'))
+                {
+                  $suffix = $Branch;
+
+                  echo "##vso[build.updatebuildnumber]$($BuildNumber)-$($suffix)"
+                }
+            displayName: build number naming
+
+  - stage: DEV
+    displayName: DEV
+    dependsOn: BuildNumber
+    jobs:
+      - template: templates/config-db.yml
+        parameters:
+          subscription: Sandbox
+          subscriptionId: 9f3afebc-aa2c-42fa-97a3-7c9435c6721c
+          dbKeyvaultConfigs:
+            - dbAdminKeyvault: md-sql-afr-dev-01
+              dbKeyvaults:
+                - metadent-afr-be-dev-01
+                - md-emails-dev-01
+  - stage: PRD
+    displayName: PRD
+    dependsOn: BuildNumber
+    jobs:
+      - template: templates/config-db.yml
+        parameters:
+          subscription: Sandbox
+          subscriptionId: 9f3afebc-aa2c-42fa-97a3-7c9435c6721c
+          dbKeyvaultConfigs:
+            - dbAdminKeyvault: md-sql-afr-prd-01
+              dbKeyvaults:
+                - uriel-be-prd-01
+                - uriel-emails-prd-01

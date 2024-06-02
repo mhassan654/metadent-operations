@@ -1,7 +1,13 @@
-param location string = resourceGroup().location
 
 var virtualNetworkName = 'metadent-afr-prd-01'
-var subnet1Name = 'PRD'
+var location = resourceGroup().location
+var subnetEnv = 'PRD'
+var subnetSql = 'SQL'
+var subnetWeb = 'WEB'
+
+var subnetEnvAddressPrefix = '172.30.10.0/24'
+var subnetSqlAddressPrefix = '172.30.11.0/24'
+var subnetWebAddressPrefix = '172.30.12.0/24'
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
   name: virtualNetworkName
@@ -14,17 +20,56 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
     }
     subnets: [
       {
-        name: subnet1Name
+        name: subnetEnv
         properties: {
-          addressPrefix: '172.30.10.0/24'
+          addressPrefix: subnetEnvAddressPrefix
         }
       }
+      {
+        name: subnetSql
+        properties: {
+          addressPrefix: subnetSqlAddressPrefix
+          delegations: [
+            {
+              name: 'delegation'
+              properties: {
+                serviceName: 'Microsoft.DBforMySQL/flexibleServers'
+              }
+            }
+          ]
+        }
+      }
+      {
+        name: subnetWeb
+        properties: {
+          addressPrefix: subnetWebAddressPrefix
+          delegations: [
+            {
+              name: 'delegation'
+              properties: {
+                serviceName: 'Microsoft.Web/serverFarms'
+              }
+            }
+          ]
+        }
+      }      
     ]
   }
 
-  resource subnet1 'subnets' existing = {
-    name: subnet1Name
+  resource subnetENV 'subnets' existing = {
+    name: subnetEnv
   }
+  resource subnetSQL 'subnets' existing = {
+    name: subnetSql
+  }
+  resource subnetWEB 'subnets' existing = {
+    name: subnetWeb
+  }    
 }
 
-output subnet1ResourceId string = virtualNetwork::subnet1.id
+output subnetSQL object = virtualNetwork::subnetSQL
+output vnetName string = virtualNetwork.name
+output vnetResourceId string = virtualNetwork.id
+output subnetEnvResourceId string = virtualNetwork::subnetENV.id
+output subnetSqlResourceId string = virtualNetwork::subnetSQL.id
+output subnetWebResourceId string = virtualNetwork::subnetWEB.id

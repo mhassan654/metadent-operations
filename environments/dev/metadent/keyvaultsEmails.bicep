@@ -1,7 +1,6 @@
 @description('Name of the Key Vault')
 @minLength(3)
-param keyVaultNameFe string
-param keyVaultNameBe string
+param keyVaultName string
 param sqlServerName string
 param sqlServerResourceGroup string
 param sqlDatabaseName string
@@ -14,10 +13,6 @@ param sqlDeployUser string
 
 @secure()
 param sqlDeployPwd string
-param secretNamewebAppName string = 'webAppName'
-param webAppNameFe string = keyVaultNameFe  // keyvault name should be the sanee as the web app name
-param webAppNameBe string = keyVaultNameBe
-
 
 @description('Location for all resources.')
 param location string = resourceGroup().location
@@ -28,40 +23,8 @@ param objectIdList array = [
   '804da5c2-e83b-4cbe-9695-267014b6775d' // service connection app reg
 ]
 
-resource keyVaultFe 'Microsoft.KeyVault/vaults@2021-10-01' = {
-  name: keyVaultNameFe
-  location: location
-  properties: {
-    sku: {
-      family: 'A'
-      name: 'standard'
-    }
-    tenantId: subscription().tenantId
-    accessPolicies: [
-      for objectId in objectIdList: {
-        tenantId: subscription().tenantId
-        objectId: objectId
-        permissions: {
-          secrets: ['get', 'list']
-        }
-      }
-    ]
-    enabledForDeployment: true
-    enabledForTemplateDeployment: true
-    enabledForDiskEncryption: true
-  }
-}
-
-resource secretWebAppNameFe 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
-  parent: keyVaultFe
-  name: secretNamewebAppName
-  properties: {
-    value: webAppNameFe
-  }
-}
-
-resource keyVaultBe 'Microsoft.KeyVault/vaults@2021-10-01' = {
-  name: keyVaultNameBe
+resource keyVault 'Microsoft.KeyVault/vaults@2021-10-01' = {
+  name: keyVaultName
   location: location
   properties: {
     sku: {
@@ -85,7 +48,7 @@ resource keyVaultBe 'Microsoft.KeyVault/vaults@2021-10-01' = {
 }
 
 resource secretsqlServerName 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
-  parent: keyVaultBe
+  parent: keyVault
   name: 'sqlServerName'
   properties: {
     value: sqlServerName
@@ -93,7 +56,7 @@ resource secretsqlServerName 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
 }
 
 resource secretsqlServerResourceGroup 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
-  parent: keyVaultBe
+  parent: keyVault
   name: 'sqlServerResourceGroup'
   properties: {
     value: sqlServerResourceGroup
@@ -101,7 +64,7 @@ resource secretsqlServerResourceGroup 'Microsoft.KeyVault/vaults/secrets@2023-07
 }
 
 resource secretsqlDatabaseName 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
-  parent: keyVaultBe
+  parent: keyVault
   name: 'sqlDatabaseName'
   properties: {
     value: sqlDatabaseName
@@ -109,40 +72,32 @@ resource secretsqlDatabaseName 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = 
 }
 
 resource secretsqlAppUser 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
-  parent: keyVaultBe
+  parent: keyVault
   name: 'sqlAppUser'
   properties: {
     value: sqlAppUser
   }
 }
 resource secretsqlAppPwd 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
-  parent: keyVaultBe
+  parent: keyVault
   name: 'sqlAppPwd'
   properties: {
     value: sqlAppPwd
   }
 }
 resource secretsqlDeployUser 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
-  parent: keyVaultBe
+  parent: keyVault
   name: 'sqlDeployUser'
   properties: {
     value: sqlDeployUser
   }
 }
 resource secretsqlDeployPwd 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
-  parent: keyVaultBe
+  parent: keyVault
   name: 'sqlDeployPwd'
   properties: {
     value: sqlDeployPwd
   }
 }
 
-resource secretWebAppNameBe 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
-  parent: keyVaultBe
-  name: secretNamewebAppName
-  properties: {
-    value: webAppNameBe
-  }
-}
-
-output keyVaultUri string = keyVaultFe.properties.vaultUri
+output keyVaultUri string = keyVault.properties.vaultUri

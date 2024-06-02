@@ -1,6 +1,6 @@
-param location string = resourceGroup().location
 
-var virtualNetworkName = 'metadent-afr-dev-01'
+param virtualNetworkName string
+var location = resourceGroup().location
 var subnetEnv = 'DEV'
 var subnetSql = 'SQL'
 var subnetWeb = 'WEB'
