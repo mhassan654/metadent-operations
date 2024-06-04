@@ -1,0 +1,25 @@
+parameters:
+  subscription: ""
+  environment: ""
+jobs:
+  - job: DeallocateVm
+    displayName: Deallocate VM
+    pool:
+      vmImage: $(adopool)
+    steps:
+      - task: AzureCLI@2
+        displayName: Deallocate machine
+        inputs:
+          azureSubscription: ${{parameters.subscription}}
+          scriptType: pscore
+          scriptLocation: inlineScript					
+          inlineScript: |
+            [CmdletBinding()]
+            param (
+              [string] $ResourceGroup,
+              [string] $Vm
+            )            
+
+            az vm deallocate --resource-group $ResourceGroup --name $Vm
+            az vm show --resource-group $ResourceGroup --name $Vm
+          arguments: "-ResourceGroup $(resourcegroup) -Vm $(vm)"

@@ -9,12 +9,7 @@ $env= "prd"
 $resourceGroupNameSql = "sql-afr-$env-rg"
 $sqlServerName = "md-sql-afr-$env-01"
 $keyVaultName = $sqlServerName
-$sqlAdminUser = "sqladmin"
-$location = "WestEurope"
-$skuName = 'Standard_B2ms'
-$mysqlVersion = '5.7'
-$vnetResourceGroupName="network-afr-$env-rg"
-$subnetName="SQL"
+
 
 # Create the resource groups
 az deployment sub create --name subscriptionDeployment --location $location `

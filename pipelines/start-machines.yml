@@ -1,0 +1,51 @@
+name: $(Year:yyyy).$(Month).$(DayOfMonth)$(Rev:.r)
+trigger: none
+
+resources:
+  - repo: self
+
+schedules:
+  - cron: "0 5 * * 1-6"  # 4am UTC Mon-Sat
+    always: "true"
+    displayName: ScheduledStartMachines
+    branches:
+      include:
+        - main
+
+  - cron: "0 5 * * 0" # 4am Sun"
+    displayName: ScheduledStopMachines
+    branches:
+      include:
+        - main
+
+variables:
+  System.Debug: false
+  adopool: windows-latest
+
+stages:
+  - stage: VMWindows
+    displayName: Start Windows pipeline agent 
+    dependsOn: []
+    variables:
+      subscription: Sandbox
+      resourcegroup: agents
+      vm: agent-win-01
+    jobs:
+      - template: templates/start-vm-jobs.yml
+        parameters:
+          subscription: ${{variables.subscription}}
+          environment: ${{variables.environment}}
+
+  - stage: VMLinux
+    displayName: Start Linux pipeline agent 
+    dependsOn: []
+    variables:
+      subscription: Sandbox
+      resourcegroup: adoagent-lin-rg
+      vm: adoagent-lin-01
+    jobs:
+      - template: templates/start-vm-jobs.yml
+        parameters:
+          subscription: ${{variables.subscription}}
+          environment: ${{variables.environment}}          
+

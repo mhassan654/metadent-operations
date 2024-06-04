@@ -1,0 +1,25 @@
+parameters:
+  subscription: ""
+  environment: ""
+jobs:
+  - job: StartVm
+    displayName: Start VM
+    pool:
+      vmImage: $(adopool)
+    steps:
+      - task: AzureCLI@2
+        displayName: Start machines
+        inputs:
+          azureSubscription: ${{parameters.subscription}}
+          scriptType: pscore
+          scriptLocation: inlineScript					
+          inlineScript: |
+            [CmdletBinding()]
+            param (
+              [string] $ResourceGroup,
+              [string] $Vm
+            )            
+
+            az vm start --resource-group $ResourceGroup --name $Vm
+            az vm show --resource-group $ResourceGroup --name $Vm
+          arguments: "-ResourceGroup $(resourcegroup) -Vm $(vm)"

@@ -61,3 +61,5 @@ stages:
               dbKeyvaults:
                 - uriel-be-prd-01
                 - uriel-emails-prd-01
+                - stmary-be-prd-01
+                - stmary-emails-prd-01
