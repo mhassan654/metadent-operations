@@ -60,7 +60,8 @@ resource webAppBe 'Microsoft.Web/sites@2022-03-01' = {
     siteConfig: {
       linuxFxVersion: linuxFxVersionBe
       ftpsState: 'FtpsOnly'
-    }
+      appCommandLine: 'curl -o /home/default https://raw.githubusercontent.com/ossentoo/nginx/main/default;cp /home/default /etc/nginx/sites-enabled/default; service nginx restart'      
+    }    
     httpsOnly: true
     vnetRouteAllEnabled: true    
   }
@@ -69,22 +70,70 @@ resource webAppBe 'Microsoft.Web/sites@2022-03-01' = {
   }
 }
 
-// module AppCustomHostEnableFrontend './hostname.bicep' = {
-//   name: '${webAppFe.name}-sni-enable'
-//   params: {
-//     appName: webAppFe.name
-//     dnsZone: dnsZoneFrontend
-//     hostPlanId: appServicePlanModule.outputs.appServicePlanId
-//     location: location
-//   }
-// }
 
-// module AppCustomHostEnableBackend './hostname.bicep' = {
-//   name: '${webAppBe.name}-sni-enable'
-//   params: {
-//     appName: webAppBe.name
-//     dnsZone: dnsZoneBackend
-//     hostPlanId: appServicePlanModule.outputs.appServicePlanId
-//     location: location    
-//   }
-// }
+// Front end certificate
+resource hostBindingFe 'Microsoft.Web/sites/hostNameBindings@2022-09-01' = {
+  parent: webAppFe
+  name: dnsZoneFrontend
+  properties: {
+    hostNameType: 'Verified'
+    sslState: 'Disabled'
+    customHostNameDnsRecordType: 'CName'
+    siteName: dnsZoneFrontend
+  }
+}
+
+resource certificateFe 'Microsoft.Web/certificates@2022-09-01' = {
+  name: dnsZoneFrontend
+  location: resourceGroup().location
+  dependsOn: [
+    hostBindingFe
+  ]
+  properties: any({
+    serverFarmId: appServicePlanModule.outputs.appServicePlanId
+    canonicalName: dnsZoneFrontend
+  })
+}
+
+module hostEnableFe 'SNI.bicep' = {
+  name: 'enableSNIFe'
+  params: {
+    appName: webAppFe.name
+    dnsName: dnsZoneFrontend
+    certificateThumbprint: certificateFe.properties.thumbprint
+  }
+}
+
+
+// Backend certificate
+resource hostBindingBe 'Microsoft.Web/sites/hostNameBindings@2022-09-01' = {
+  parent: webAppBe
+  name: dnsZoneBackend
+  properties: {
+    hostNameType: 'Verified'
+    sslState: 'Disabled'
+    customHostNameDnsRecordType: 'CName'
+    siteName: dnsZoneBackend
+  }
+}
+
+resource certificateBe 'Microsoft.Web/certificates@2022-09-01' = {
+  name: dnsZoneBackend
+  location: resourceGroup().location
+  dependsOn: [
+    hostBindingBe
+  ]
+  properties: any({
+    serverFarmId: appServicePlanModule.outputs.appServicePlanId
+    canonicalName: dnsZoneBackend
+  })
+}
+
+module hostEnableBe 'SNI.bicep' = {
+  name: 'enableSNIBe'
+  params: {
+    appName: webAppBe.name
+    dnsName: dnsZoneBackend
+    certificateThumbprint: certificateBe.properties.thumbprint
+  }
+}

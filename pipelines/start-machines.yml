@@ -12,12 +12,6 @@ schedules:
       include:
         - main
 
-  - cron: "0 5 * * 0" # 4am Sun"
-    displayName: ScheduledStopMachines
-    branches:
-      include:
-        - main
-
 variables:
   System.Debug: false
   adopool: windows-latest
