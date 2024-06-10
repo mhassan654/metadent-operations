@@ -59,6 +59,8 @@ stages:
           dbKeyvaultConfigs:
             - dbAdminKeyvault: md-sql-afr-prd-01
               dbKeyvaults:
+                - demo-be-prd-01
+                - demo-emails-prd-01
                 - stg-i-be-prd-01
                 - stg-i-emails-prd-01
                 - stmary-be-prd-01
