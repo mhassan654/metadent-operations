@@ -1,5 +1,5 @@
 @description('The SKU of App Service Plan ')
-param sku string
+param sku string = 'P1mv3'
 param appServicePlanName string
 
 @description('Location for all resources.')

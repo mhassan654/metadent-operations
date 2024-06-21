@@ -7,10 +7,7 @@ param(
 # Set the subscription
 az account set --subscription "9f3afebc-aa2c-42fa-97a3-7c9435c6721c"
 $env= "prd"
-$clientName = "staging-legacy"
-$clientShortName = "staging"
-$clientNameNoDash="staginglegacy"
-
+$clientName = "surgerytime";
 $resourceGroupName = "$clientName-$env-rg"
 $location = "WestEurope"
 $dnsZoneFrontend="$clientName.metadent.cloud"
@@ -20,19 +17,18 @@ $mysqlServerResourceGroupName = "sql-afr-$env-rg"
 $mysqlServerName = "md-sql-afr-$env-01"
 $webAppNameFrontend = "$clientName-fe-$env-02"
 $webAppNameBackend = "$clientName-be-$env-02"
+$keyVaultNameFe = $webAppNameFrontend
+$keyVaultNameBe = $webAppNameBackend
+$keyVaultNameEmails = "$clientName-emails-02"
 $appServicePlanResourceGroupName = "web-afr-$env-rg"
 $vnetResourceGroupName = "network-afr-$env-rg"
 $vnetName = "metadent-afr-$env-01"
 $appServicePlanName = "web-afr-$env-01"
-$keyVaultNameFe = "$clientName-fe-$env-02"
-$keyVaultNameBe = "$clientName-be-$env-02"
-$keyVaultNameEmails = "$clientShortName-emails-$env-02"
 $sqlServerName = "$mysqlServerName.mysql.database.azure.com"
 $sqlServerResourceGroup = $mysqlServerResourceGroupName
-$sqlDatabaseName = "$clientNameNoDash$($env)02"
-$sqlDatabaseNameEmails = "$($clientNameNoDash)emails$($env)02"
-$storageAccountName = $sqlDatabaseName
-
+$sqlDatabaseName = "$clientName$($env)02"
+$sqlDatabaseNameEmails = "$($clientName)emails$($env)02"
+$storageAccountName = "$clientName$($env)02"
 
 # # Create the resource groups
 az deployment sub create --name subscriptionDeployment --location $location `

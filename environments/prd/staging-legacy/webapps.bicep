@@ -10,7 +10,7 @@ param vnetResourceGroupName string
 param vnetName string
 
 @description('The Runtime stack of current web app')
-param linuxFxVersionFe string = 'NODE|20-lts'
+param linuxFxVersionFe string = 'php|8.2'
 param linuxFxVersionBe string = 'php|8.2'
 
 @description('Location for all resources.')
@@ -18,7 +18,7 @@ var location = resourceGroup().location
 var subnetName = 'WEB'
 var subnetResourceId = '${vnetResource.id}/subnets/${subnetName}'
 
-module appServicePlanModule '../../_shared_dev/app_service_plans/asp.bicep' = {
+module appServicePlanModule '../../_shared_prd/app_service_plans/asp.bicep' = {
   scope: resourceGroup(appServicePlanResourceGroupName)
   name: 'appServicePlanModule'
   params: {

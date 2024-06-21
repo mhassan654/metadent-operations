@@ -29,7 +29,6 @@ $sqlServerResourceGroup = $mysqlServerResourceGroupName
 $sqlDatabaseName = "$clientName$($env)01"
 $sqlDatabaseNameEmails = "$($clientName)emails$($env)01"
 
-
 # # Create the resource groups
 az deployment sub create --name subscriptionDeployment --location $location `
     --template-file "$ResourceGroupFilePath" `
@@ -84,6 +83,27 @@ if ([string]::IsNullOrEmpty($secretExistsEmails)) {
                     sqlAppPwd=$sqlAppPwd `
                     sqlDeployUser=$sqlDeployUser `
                     sqlDeployPwd=$sqlDeployPwd
+}
+
+$keyVaultNameInfrastructure = "metadent-infra-01"
+$smtpUsernameSecret = "smtp-username-prd"
+$smtpPasswordSecret = "smtp-password-prd"
+
+# Check if the smtp secrets exist
+$secretExists=$(az keyvault secret show --name $smtpUsernameSecret --vault-name $keyVaultNameBe --query id -o tsv 2>$null)
+
+if ([string]::IsNullOrEmpty($secretExists)) {
+
+    $smtpUsername=$(az keyvault secret show --name $smtpUsernameSecret --vault-name $keyVaultNameInfrastructure --query value -o tsv 2>$null)
+    $smtpPassword=$(az keyvault secret show --name $smtpPasswordSecret --vault-name $keyVaultNameInfrastructure --query value -o tsv 2>$null)
+
+    # # Deploy key vaults
+    az deployment group create --resource-group $resourceGroupName `
+        --template-file "$ResourceFolder/keyvaultsSmtp.bicep" --mode Incremental `
+        --parameters keyVaultName=$keyVaultNameBe `
+                    smtpUsername=$smtpUsername `
+                    smtpPassword=$smtpPassword
+
 }
 
 az deployment group create --resource-group $resourceGroupName `

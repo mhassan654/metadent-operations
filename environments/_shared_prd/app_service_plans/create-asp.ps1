@@ -5,7 +5,7 @@ param(
 
 # Set the subscription
 az account set --subscription "9f3afebc-aa2c-42fa-97a3-7c9435c6721c"
-$sku = 'P0V3'
+$sku = 'P1mv3'
 $appServicePlanName = 'web-afr-prd-01'
 $resourceGroupNameAsp = "web-afr-prd-rg"
 $location = "WestEurope"

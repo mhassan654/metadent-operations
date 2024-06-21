@@ -10,18 +10,17 @@ param vnetResourceGroupName string
 param vnetName string
 
 @description('The Runtime stack of current web app')
-param linuxFxVersionFe string = 'NODE|20-lts'
+param linuxFxVersionFe string = 'php|8.2'
 param linuxFxVersionBe string = 'php|8.2'
 
 @description('Location for all resources.')
 var location = resourceGroup().location
 var subnetName = 'WEB'
 
-module appServicePlanModule '../../_shared_dev/app_service_plans/asp.bicep' = {
+module appServicePlanModule '../../_shared_prd/app_service_plans/asp.bicep' = {
   scope: resourceGroup(appServicePlanResourceGroupName)
   name: 'appServicePlanModule'
   params: {
-    sku: 'b2'
     appServicePlanName: appServicePlanName
   }
 }
@@ -42,6 +41,7 @@ resource webAppFe 'Microsoft.Web/sites@2022-03-01' = {
     siteConfig: {
       linuxFxVersion: linuxFxVersionFe
       ftpsState: 'FtpsOnly'
+      appCommandLine: 'curl -o /home/default https://raw.githubusercontent.com/ossentoo/nginx/main/default.frontend;curl -o /home/start.sh https://raw.githubusercontent.com/ossentoo/nginx/main/start.sh;chmod +x /home/start.sh;/home/start.sh'
     }
     httpsOnly: true
   }
@@ -60,7 +60,7 @@ resource webAppBe 'Microsoft.Web/sites@2022-03-01' = {
     siteConfig: {
       linuxFxVersion: linuxFxVersionBe
       ftpsState: 'FtpsOnly'
-      appCommandLine: 'curl -o /home/default https://raw.githubusercontent.com/ossentoo/nginx/main/default;cp /home/default /etc/nginx/sites-enabled/default; service nginx restart'      
+      appCommandLine: 'curl -o /home/default https://raw.githubusercontent.com/ossentoo/nginx/main/default;curl -o /home/start.sh https://raw.githubusercontent.com/ossentoo/nginx/main/start.sh;chmod +x /home/start.sh;/home/start.sh'
     }    
     httpsOnly: true
     vnetRouteAllEnabled: true    
