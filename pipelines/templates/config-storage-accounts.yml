@@ -1,0 +1,32 @@
+parameters:
+  subscription: ''
+  subscriptionId: ''
+  storageAccountKeyvaultConfigs: []
+jobs:
+- ${{ each storageAccountConfig in parameters.storageAccountKeyvaultConfigs }}:
+  - ${{ each keyvault in storageAccountConfig.storageAccountKeyvaults }}:
+    - job: configStorageAccount${{replace( keyvault ,'-','_')}}
+      displayName: config storageAccounts for (${{keyvault}} in  ${{parameters.environment}}) 
+      pool: 
+        name: $(adoPool)
+      variables:
+        subscriptionId: ${{parameters.subscriptionId}}
+      steps:
+      - checkout: self
+
+      - task: AzureKeyVault@2
+        displayName: Get secrets
+        inputs:
+          azureSubscription: ${{parameters.subscription}}
+          KeyVaultName: ${{keyvault}}
+
+      - task: AzureCLI@2
+        displayName: Configure the storage account roles
+        inputs:
+          azureSubscription: ${{parameters.subscription}}
+          scriptType: pscore
+          scriptLocation: inlineScript
+          inlineScript: |
+            az deployment group create --resource-group "$(resourceGroupName)" `
+                --template-file "modules/clients/storageAccount-role.bicep" --mode Incremental `
+                --parameters storageAccountName=$(storageAccountName)

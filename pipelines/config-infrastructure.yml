@@ -35,8 +35,8 @@ stages:
                 }
             displayName: build number naming
 
-  - stage: DEV
-    displayName: DEV
+  - stage: DEVDB
+    displayName: DEV DB
     dependsOn: BuildNumber
     jobs:
       - template: templates/config-db.yml
@@ -48,9 +48,9 @@ stages:
               dbKeyvaults:
                 - metadent-afr-be-dev-01
                 - md-emails-dev-01
-  - stage: PRD
-    displayName: PRD
-    dependsOn: BuildNumber
+  - stage: PRDDB
+    displayName: PRD DB
+    dependsOn: DEVDB
     jobs:
       - template: templates/config-db.yml
         parameters:
@@ -69,3 +69,32 @@ stages:
                 - surgerytime-emails-02
                 - uriel-be-prd-01
                 - uriel-emails-prd-01
+
+  - stage: DEVStorageAccounts
+    displayName: DEV Storage Accounts
+    dependsOn: BuildNumber
+    jobs:
+      - template: templates/config-storage-accounts.yml
+        parameters:
+          subscription: Sandbox
+          subscriptionId: 9f3afebc-aa2c-42fa-97a3-7c9435c6721c
+          storageAccountKeyvaultConfigs:
+            - storageAccountKeyvaults:
+                - metadent-afr-be-dev-01
+
+  - stage: PRDStorageAccounts
+    displayName: PRD Storage Accounts
+    dependsOn: DEVStorageAccounts
+    jobs:
+      - template: templates/config-storage-accounts.yml
+        parameters:
+          subscription: Sandbox
+          subscriptionId: 9f3afebc-aa2c-42fa-97a3-7c9435c6721c
+          storageAccountKeyvaultConfigs:
+            - storageAccountKeyvaults:
+                - demo-be-prd-01
+                - stg-i-be-prd-01
+                - stmary-be-prd-01
+                - surgerytime-be-prd-02
+                - uriel-be-prd-01
+

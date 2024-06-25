@@ -1,6 +1,6 @@
 param(
      [Parameter()][string]$ResourceGroupFilePath = "../../resourcegroup.bicep",
-     [Parameter()][string]$ResourceFolder = "."     
+     [Parameter()][string]$ResourceFolder = "../../../modules/clients"   
  )
 
 
@@ -10,8 +10,8 @@ $env= "prd"
 $clientName = "surgerytime";
 $resourceGroupName = "$clientName-$env-rg"
 $location = "WestEurope"
-$dnsZoneFrontend="$clientName.metadent.cloud"
-$dnsZoneBackend="$clientName.api.metadent.cloud"
+$dnsZoneFrontend="$clientName.metadent.nl"
+$dnsZoneBackend="$clientName.api.metadent.nl"
 $appServicePlanName = "web-afr-$env-01"
 $mysqlServerResourceGroupName = "sql-afr-$env-rg"
 $mysqlServerName = "md-sql-afr-$env-01"

@@ -1,6 +1,6 @@
 param(
      [Parameter()][string]$ResourceGroupFilePath = "../../resourcegroup.bicep",
-     [Parameter()][string]$ResourceFolder = "."     
+     [Parameter()][string]$ResourceFolder = "../../../modules/data_services"  
  )
 
 # Set the subscription

@@ -1,8 +1,7 @@
 param(
      [Parameter()][string]$ResourceGroupFilePath = "../../resourcegroup.bicep",
-     [Parameter()][string]$ResourceFolder = "."     
+     [Parameter()][string]$ResourceFolder = "../../../modules/clients"
  )
-
 
 # Set the subscription
 az account set --subscription "9f3afebc-aa2c-42fa-97a3-7c9435c6721c"
