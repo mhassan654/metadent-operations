@@ -41,7 +41,7 @@ stages:
     jobs:
       - template: templates/config-db.yml
         parameters:
-          subscription: Sandbox
+          subscription: MetadentInternational
           subscriptionId: 9f3afebc-aa2c-42fa-97a3-7c9435c6721c
           dbKeyvaultConfigs:
             - dbAdminKeyvault: md-sql-afr-dev-01
@@ -54,25 +54,23 @@ stages:
     jobs:
       - template: templates/config-db.yml
         parameters:
-          subscription: Sandbox
+          subscription: MetadentInternational
           subscriptionId: 9f3afebc-aa2c-42fa-97a3-7c9435c6721c
           dbKeyvaultConfigs:
             - dbAdminKeyvault: md-sql-afr-prd-01
               dbKeyvaults:
+                - codeclinic-be-prd-01
+                - codeclinic-emails-prd-01
                 - demo-be-prd-01
                 - demo-emails-prd-01
+                - idental-be-prd-01
+                - idental-emails-prd-01
                 - stg-i-be-prd-01
                 - stg-i-emails-prd-01
                 - stmary-be-prd-01
                 - stmary-emails-prd-01
                 - surgerytime-be-prd-02
                 - surgerytime-emails-02
-                - uriel-be-prd-01
-                - uriel-emails-prd-01
-                - codeclinic-be-prd-01
-                - codeclinic-emails-prd-01
-                - idental-be-prd-01
-                - idental-emails-prd-01
 
   - stage: DEVStorageAccounts
     displayName: DEV Storage Accounts
@@ -80,7 +78,7 @@ stages:
     jobs:
       - template: templates/config-storage-accounts.yml
         parameters:
-          subscription: Sandbox
+          subscription: MetadentInternational
           subscriptionId: 9f3afebc-aa2c-42fa-97a3-7c9435c6721c
           storageAccountKeyvaultConfigs:
             - storageAccountKeyvaults:
@@ -92,15 +90,14 @@ stages:
     jobs:
       - template: templates/config-storage-accounts.yml
         parameters:
-          subscription: Sandbox
+          subscription: MetadentInternational
           subscriptionId: 9f3afebc-aa2c-42fa-97a3-7c9435c6721c
           storageAccountKeyvaultConfigs:
             - storageAccountKeyvaults:
+                - codeclinic-be-prd-01
                 - demo-be-prd-01
+                - idental-be-prd-01
                 - stg-i-be-prd-01
                 - stmary-be-prd-01
                 - surgerytime-be-prd-02
-                - uriel-be-prd-01
-                - codeclinic-be-prd-01
-                - idental-be-prd-01
 

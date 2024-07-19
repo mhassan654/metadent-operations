@@ -6,7 +6,7 @@ jobs:
 - ${{ each dbKeyvaultConfig in parameters.dbKeyvaultConfigs }}:
   - ${{ each database in dbKeyvaultConfig.dbKeyvaults }}:
     - job: configDatabase${{replace( database ,'-','_')}}
-      displayName: config databases for (${{database}} in  ${{parameters.environment}}) 
+      displayName: config dbs for (${{database}} in  ${{parameters.environment}}) 
       timeoutInMinutes: 10
       pool: 
         name: $(adoPool)
