@@ -3,31 +3,30 @@ param(
      [Parameter()][string]$ResourceFolder = "../../../modules/clients"
  )
 
-
 # Set the subscription
 az account set --subscription "9f3afebc-aa2c-42fa-97a3-7c9435c6721c"
 $env= "prd"
-$resourceGroupName = "uriel-$env-rg"
+$clientName = "codeclinic";
+$resourceGroupName = "$clientName-$env-rg"
 $location = "WestEurope"
-$dnsZoneFrontend="$env.metadent.cloud"
-$dnsZoneBackend="$env.api.metadent.cloud"
+$dnsZoneFrontend="$clientName.metadent.cloud"
+$dnsZoneBackend="$clientName.api.metadent.cloud"
 $appServicePlanName = "web-afr-$env-01"
 $mysqlServerResourceGroupName = "sql-afr-$env-rg"
 $mysqlServerName = "md-sql-afr-$env-01"
-$webAppNameFrontend = "uriel-fe-$env-01"
-$webAppNameBackend = "uriel-be-$env-01"
+$webAppNameFrontend = "$clientName-fe-$env-01"
+$webAppNameBackend = "$clientName-be-$env-01"
 $appServicePlanResourceGroupName = "web-afr-$env-rg"
 $vnetResourceGroupName = "network-afr-$env-rg"
 $vnetName = "metadent-afr-$env-01"
 $appServicePlanName = "web-afr-$env-01"
-$keyVaultNameFe = "uriel-fe-$env-01"
-$keyVaultNameBe = "uriel-be-$env-01"
-$keyVaultNameEmails = "uriel-emails-$env-01"
+$keyVaultNameFe = "$clientName-fe-$env-01"
+$keyVaultNameBe = "$clientName-be-$env-01"
+$keyVaultNameEmails = "$clientName-emails-$env-01"
 $sqlServerName = "$mysqlServerName.mysql.database.azure.com"
 $sqlServerResourceGroup = $mysqlServerResourceGroupName
-$sqlDatabaseName = "uriel$($env)01"
-$sqlDatabaseNameEmails = "urielemails$($env)01"
-
+$sqlDatabaseName = "$clientName$($env)01"
+$sqlDatabaseNameEmails = "$($clientName)emails$($env)01"
 
 # # Create the resource groups
 az deployment sub create --name subscriptionDeployment --location $location `
@@ -62,27 +61,6 @@ if ([string]::IsNullOrEmpty($secretExists)) {
                     sqlDeployPwd=$sqlDeployPwd
 }
 
-$keyVaultNameInfrastructure = "metadent-infra-01"
-$smtpUsernameSecret = "smtp-username-prd"
-$smtpPasswordSecret = "smtp-password-prd"
-
-# Check if the smtp secrets exist
-$secretExists=$(az keyvault secret show --name $smtpUsernameSecret --vault-name $keyVaultNameBe --query id -o tsv 2>$null)
-
-if ([string]::IsNullOrEmpty($secretExists)) {
-
-    $smtpUsername=$(az keyvault secret show --name $smtpUsernameSecret --vault-name $keyVaultNameInfrastructure --query value -o tsv 2>$null)
-    $smtpPassword=$(az keyvault secret show --name $smtpPasswordSecret --vault-name $keyVaultNameInfrastructure --query value -o tsv 2>$null)
-
-    # # Deploy key vaults
-    az deployment group create --resource-group $resourceGroupName `
-        --template-file "$ResourceFolder/keyvaultsSmtp.bicep" --mode Incremental `
-        --parameters keyVaultName=$keyVaultNameBe `
-                    smtpUsername=$smtpUsername `
-                    smtpPassword=$smtpPassword
-
-}
-
 $secretExistsEmails=$(az keyvault secret show --name sqlAppPwd --vault-name $keyVaultNameEmails --query id -o tsv 2>$null)
 
 # If the secret does not exist, deploy the Bicep file
@@ -106,6 +84,27 @@ if ([string]::IsNullOrEmpty($secretExistsEmails)) {
                     sqlDeployPwd=$sqlDeployPwd
 }
 
+$keyVaultNameInfrastructure = "metadent-infra-01"
+$smtpUsernameSecret = "smtp-username-prd"
+$smtpPasswordSecret = "smtp-password-prd"
+
+# Check if the smtp secrets exist
+$secretExists=$(az keyvault secret show --name $smtpUsernameSecret --vault-name $keyVaultNameBe --query id -o tsv 2>$null)
+
+if ([string]::IsNullOrEmpty($secretExists)) {
+
+    $smtpUsername=$(az keyvault secret show --name $smtpUsernameSecret --vault-name $keyVaultNameInfrastructure --query value -o tsv 2>$null)
+    $smtpPassword=$(az keyvault secret show --name $smtpPasswordSecret --vault-name $keyVaultNameInfrastructure --query value -o tsv 2>$null)
+
+    # # Deploy key vaults
+    az deployment group create --resource-group $resourceGroupName `
+        --template-file "$ResourceFolder/keyvaultsSmtp.bicep" --mode Incremental `
+        --parameters keyVaultName=$keyVaultNameBe `
+                    smtpUsername=$smtpUsername `
+                    smtpPassword=$smtpPassword
+
+}
+
 az deployment group create --resource-group $resourceGroupName `
                             --template-file "$ResourceFolder/webapps.bicep" --mode Incremental `
                             --parameters webAppNameFrontend=$webAppNameFrontend `
@@ -116,6 +115,13 @@ az deployment group create --resource-group $resourceGroupName `
                                         appServicePlanName=$appServicePlanName `
                                         vnetResourceGroupName=$vnetResourceGroupName `
                                         vnetName=$vnetName
+
+# Start and stop the web app so that it can reconfigure nginx.
+# To stop the web app
+az webapp stop --name $webAppNameBackend --resource-group $resourceGroupName
+
+# To start the web app
+az webapp start --name $webAppNameBackend --resource-group $resourceGroupName                                        
 
 $storageAccountName = $sqlDatabaseName
 az deployment group create --resource-group $resourceGroupName `

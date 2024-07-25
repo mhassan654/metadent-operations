@@ -1,6 +1,6 @@
 param(
      [Parameter()][string]$ResourceGroupFilePath = "../../resourcegroup.bicep",
-     [Parameter()][string]$ResourceFolder = "."     
+     [Parameter()][string]$ResourceFolder = "../../../modules/clients" 
  )
 
 
@@ -21,8 +21,8 @@ $secretExists=$(az keyvault secret show --name $smtpUsernameSecret --vault-name 
 
 if ([string]::IsNullOrEmpty($secretExists)) {
 
-    $smtpUsername=$(az keyvault secret show --name $smtpUsernameSecret --vault-name $keyVaultNameInfrastructure --query id -o tsv 2>$null)
-    $smtpPassword=$(az keyvault secret show --name $smtpPasswordSecret --vault-name $keyVaultNameInfrastructure --query id -o tsv 2>$null)
+    $smtpUsername=$(az keyvault secret show --name $smtpUsernameSecret --vault-name $keyVaultNameInfrastructure --query value -o tsv 2>$null)
+    $smtpPassword=$(az keyvault secret show --name $smtpPasswordSecret --vault-name $keyVaultNameInfrastructure --query value -o tsv 2>$null)
 
     # # Deploy key vaults
     az deployment group create --resource-group $resourceGroupName `

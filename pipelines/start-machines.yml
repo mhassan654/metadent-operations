@@ -21,7 +21,7 @@ stages:
     displayName: Start Windows pipeline agent 
     dependsOn: []
     variables:
-      subscription: Sandbox
+      subscription: MetadentInternational
       resourcegroup: agents
       vm: agent-win-01
     jobs:
@@ -34,7 +34,7 @@ stages:
     displayName: Start Linux pipeline agent 
     dependsOn: []
     variables:
-      subscription: Sandbox
+      subscription: MetadentInternational
       resourcegroup: adoagent-lin-rg
       vm: adoagent-lin-01
     jobs:
