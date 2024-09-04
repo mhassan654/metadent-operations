@@ -59,7 +59,9 @@ stages:
           dbKeyvaultConfigs:
             - dbAdminKeyvault: md-sql-afr-prd-01
               dbKeyvaults:
-                - codeclinic-be-prd-01
+                - crongen-be-prd-01
+                - crongen-emails-prd-01
+                - codeclinic-be-prd-01               
                 - codeclinic-emails-prd-01
                 - demo-be-prd-01
                 - demo-emails-prd-01
@@ -94,6 +96,7 @@ stages:
           subscriptionId: 9f3afebc-aa2c-42fa-97a3-7c9435c6721c
           storageAccountKeyvaultConfigs:
             - storageAccountKeyvaults:
+                - crongen-be-prd-01
                 - codeclinic-be-prd-01
                 - demo-be-prd-01
                 - idental-be-prd-01
