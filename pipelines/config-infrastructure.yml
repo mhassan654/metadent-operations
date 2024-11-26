@@ -78,7 +78,7 @@ stages:
                 - surgerytime-be-prd-02
                 - surgerytime-emails-02
                 - premium2-be-prd-01
-                - premium2-emails-01
+                - premium2-emails-prd-01
 
   - stage: DEVStorageAccounts
     displayName: DEV Storage Accounts
