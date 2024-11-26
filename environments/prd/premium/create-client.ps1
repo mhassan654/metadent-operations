@@ -6,7 +6,7 @@ param(
 # Set the subscription
 az account set --subscription "9f3afebc-aa2c-42fa-97a3-7c9435c6721c"
 $env= "prd"
-$clientName = "premium";
+$clientName = "premium2";
 $resourceGroupName = "$clientName-$env-rg"
 $location = "WestEurope"
 $dnsZoneFrontend="$clientName.metadent.cloud"
