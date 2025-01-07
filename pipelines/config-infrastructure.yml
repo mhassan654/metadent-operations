@@ -61,6 +61,8 @@ stages:
               dbKeyvaults:
                 - cal-be-prd-01
                 - cal-emails-prd-01
+                - century-be-prd-01
+                - century-emails-prd-01
                 - crongen-be-prd-01
                 - crongen-emails-prd-01
                 - demo-be-prd-01
@@ -103,6 +105,7 @@ stages:
           storageAccountKeyvaultConfigs:
             - storageAccountKeyvaults:
                 - cal-be-prd-01
+                - century-be-prd-01
                 - crongen-be-prd-01
                 - codeclinic-be-prd-01
                 - demo-be-prd-01
